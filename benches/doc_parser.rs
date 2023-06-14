@@ -11,6 +11,7 @@ use deno_graph::source::MemoryLoader;
 use deno_graph::source::Source;
 use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
+use deno_graph::DefaultModuleParser;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
@@ -27,7 +28,9 @@ async fn parse_with_reexports() -> Vec<DocNode> {
   )];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("file:///test/fixtures/deno.d.ts").unwrap();
-  let analyzer = CapturingModuleAnalyzer::default();
+  let source_parser = DefaultModuleParser::new_for_analysis();
+  let analyzer =
+    CapturingModuleAnalyzer::new(Some(Box::new(source_parser)), None);
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(

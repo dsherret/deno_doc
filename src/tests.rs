@@ -6,6 +6,7 @@ use deno_graph::source::MemoryLoader;
 use deno_graph::source::Source;
 use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
+use deno_graph::DefaultModuleParser;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
@@ -33,7 +34,9 @@ pub(crate) async fn setup<S: AsRef<str> + Copy>(
     .collect();
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse(root.as_ref()).unwrap();
-  let analyzer = CapturingModuleAnalyzer::default();
+  let source_parser = DefaultModuleParser::new_for_analysis();
+  let analyzer =
+    CapturingModuleAnalyzer::new(Some(Box::new(source_parser)), None);
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
@@ -142,7 +145,9 @@ async fn content_type_handling() {
   )];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a").unwrap();
-  let analyzer = CapturingModuleAnalyzer::default();
+  let source_parser = DefaultModuleParser::new_for_analysis();
+  let analyzer =
+    CapturingModuleAnalyzer::new(Some(Box::new(source_parser)), None);
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(
@@ -188,7 +193,9 @@ async fn types_header_handling() {
   ];
   let mut memory_loader = MemoryLoader::new(sources, vec![]);
   let root = ModuleSpecifier::parse("https://example.com/a.js").unwrap();
-  let analyzer = CapturingModuleAnalyzer::default();
+  let source_parser = DefaultModuleParser::new_for_analysis();
+  let analyzer =
+    CapturingModuleAnalyzer::new(Some(Box::new(source_parser)), None);
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(

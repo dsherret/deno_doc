@@ -12,6 +12,7 @@ use deno_graph::source::Loader;
 use deno_graph::source::Resolver;
 use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
+use deno_graph::DefaultModuleParser;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
@@ -159,7 +160,9 @@ pub async fn doc(
   } else {
     maybe_resolve.map(|res| Box::new(JsResolver::new(res)) as Box<dyn Resolver>)
   };
-  let analyzer = CapturingModuleAnalyzer::default();
+  let source_parser = DefaultModuleParser::new_for_analysis();
+  let analyzer =
+    CapturingModuleAnalyzer::new(Some(Box::new(source_parser)), None);
   let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
   graph
     .build(

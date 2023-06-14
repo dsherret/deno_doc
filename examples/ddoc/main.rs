@@ -11,6 +11,7 @@ use deno_graph::source::LoadResponse;
 use deno_graph::source::Loader;
 use deno_graph::BuildOptions;
 use deno_graph::CapturingModuleAnalyzer;
+use deno_graph::DefaultModuleParser;
 use deno_graph::GraphKind;
 use deno_graph::ModuleGraph;
 use deno_graph::ModuleSpecifier;
@@ -61,7 +62,9 @@ fn main() {
 
   let mut loader = SourceFileLoader {};
   let future = async move {
-    let analyzer = CapturingModuleAnalyzer::default();
+    let source_parser = DefaultModuleParser::new_for_analysis();
+    let analyzer =
+      CapturingModuleAnalyzer::new(Some(Box::new(source_parser)), None);
     let mut graph = ModuleGraph::new(GraphKind::TypesOnly);
     graph
       .build(
